@@ -52,7 +52,7 @@ def mk_dgltxt(raw_dir,name):
 
     #读取节点特征1：基因表达  读入矩阵每一行是一个病人。是节点特征
     total_gene_expression_path = os.path.join(raw_dir,name,str(name+"_gene_expression.csv"))
-    total_gene_expression_feature =  pd.read_csv(total_gene_expression_path,header=0)
+    total_gene_expression_feature =  pd.read_csv(total_gene_expression_path, header=0)
     print(total_gene_expression_feature.head())
     #图的标签集
     total_label = total_gene_expression_feature['label']
@@ -126,7 +126,7 @@ def mk_dgltxt(raw_dir,name):
     for i in range(0,n_graph):
         #对于每一张图 第一行  图的节点数  图的类别
         _write_msg(raw_dir,name,str(n_node)+' '+ str(total_label[i]))
-        _write_msg2(raw_dir,)
+        _write_msg2(raw_dir,name,name2,str(total_label[i]))
 #         再写每一个节点的信息
         for j in range(0,n_node):
 #             print(str(total_gene_expression_feature.iloc[i,j]))=
