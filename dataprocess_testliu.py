@@ -43,6 +43,10 @@ def mk_dgltxt(raw_dir,name):
     #raw_dir = ./Dataset
     #name2 = ./Dataset/name/name_graph_labels.txt
     name2 = name+'_graph_labels.txt'
+    name3 = name+'_node_attributes.txt'
+    name4 = name+'_graph_indicator.txt'
+    name5 = name+'_A.txt'
+
 
     #读入ppi网络(图的结构)
     total_gene_expression_path = os.path.join(raw_dir,name,str(name+"_ppi_Network.tsv"))
@@ -126,16 +130,28 @@ def mk_dgltxt(raw_dir,name):
     for i in range(0,n_graph):
         #对于每一张图 第一行  图的节点数  图的类别
         _write_msg(raw_dir,name,str(n_node)+' '+ str(total_label[i]))
+        #写DS_graph_labels.txt
         _write_msg2(raw_dir,name,name2,str(total_label[i]))
-#         再写每一个节点的信息
+        node_indicator = i + 1
+        #再写每一个节点的信息
         for j in range(0,n_node):
-#             print(str(total_gene_expression_feature.iloc[i,j]))=
-#              加了组学特征
+            #msg写DS.txt
             msg = str(node_label)+' '+ str(len(node_edges[j]))+' '+ " ".join(node_edges[j])+' ' +str(total_gene_expression_feature.iloc[i,j])
-            msg2 = str(node_label)+' '+ str(len(node_edges[j]))+' '+ " ".join(node_edges[j])
+            #msg2写DS_node_attributes.txt
+            msg2 = str(total_gene_expression_feature.iloc[i,j])
+            #msg3写DS_graph_indicator.txt
+            msg3 = str(node_indicator)
             _write_msg(raw_dir,name,msg)
+            _write_msg2(raw_dir, name,name3, msg2)
+            _write_msg2(raw_dir, name, name4, msg3)
 
-
+            for adj_node in node_edges[j]:
+                if int(adj_node) > j:
+                    mark_adj_node = int(adj_node) +1
+                    msg4 = str(j+1)+', '+str(mark_adj_node)
+                    _write_msg2(raw_dir, name,name5, msg4)
+                    msg4 = str(mark_adj_node)+', '+str(j+1)
+                    _write_msg2(raw_dir, name, name5, msg4)
 
 
 
