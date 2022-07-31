@@ -126,11 +126,12 @@ def mk_dgltxt(raw_dir,name):
     for i in range(0,n_graph):
         #对于每一张图 第一行  图的节点数  图的类别
         _write_msg(raw_dir,name,str(n_node)+' '+ str(total_label[i]))
+        _write_msg2(raw_dir,)
 #         再写每一个节点的信息
         for j in range(0,n_node):
 #             print(str(total_gene_expression_feature.iloc[i,j]))=
 #              加了组学特征
-            msg = str(node_label)+' '+ str(len(node_edges[j]))+' '+ " ".join(node_edges[j])+' ' +str(total_gene_expression_feature.iloc[i,j])+' '+str(total_gene_expression_feature.iloc[i,j])
+            msg = str(node_label)+' '+ str(len(node_edges[j]))+' '+ " ".join(node_edges[j])+' ' +str(total_gene_expression_feature.iloc[i,j])
             msg2 = str(node_label)+' '+ str(len(node_edges[j]))+' '+ " ".join(node_edges[j])
             _write_msg(raw_dir,name,msg)
 
@@ -141,7 +142,7 @@ def mk_dgltxt(raw_dir,name):
 
 if __name__ == '__main__':
     work_dir = './dataset'
-    mk_dgltxt(work_dir,'TESTLIU3')
+    mk_dgltxt(work_dir,'TESTLIU4')
 
 
 
