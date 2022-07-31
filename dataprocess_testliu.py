@@ -3,7 +3,7 @@ import math
 import csv
 import os
 import numpy as np
-
+#作用是把ppi网络加组学数据变成txt文件
 
 #创建目标txt
 def _text_create(raw_dir,name):
@@ -21,7 +21,16 @@ def _write_msg(raw_dir,name,msg):
         text = file.writelines(msg+'\n')
         file.close()
         return True
+    else:
+        return False
 
+def _write_msg2(raw_dir,name,name2,msg):
+    file_path = os.path.join(raw_dir,name,name2)
+    if os.path.isfile(file_path):
+        file = open(file_path, 'a')
+        text = file.writelines(msg+'\n')
+        file.close()
+        return True
     else:
         return False
 
@@ -32,6 +41,8 @@ def mk_dgltxt(raw_dir,name):
     #如表达矩阵：./Dataset/name/name_expression.csv
     #网络骨架：./Dataset/name/name_ppi.tsv
     #raw_dir = ./Dataset
+    #name2 = ./Dataset/name/name_graph_labels.txt
+    name2 = name+'_graph_labels.txt'
 
     #读入ppi网络(图的结构)
     total_gene_expression_path = os.path.join(raw_dir,name,str(name+"_ppi_Network.tsv"))
@@ -47,20 +58,11 @@ def mk_dgltxt(raw_dir,name):
     total_label = total_gene_expression_feature['label']
 
     #读取节点特征n 加在下面
-    """
-    
-    """
-
     #图数据集包含的图的数目,表达矩阵的行数是图的数目
     n_graph = total_gene_expression_feature.shape[0]
-
     #每张图含有的节点数相同,去掉标签列
     n_node = total_gene_expression_feature.shape[1] -1
-
     print('n_node:'+str(n_node))
-
-    #建立gin所用的txt文件
-    text_create = _text_create(raw_dir,name)
 
     #写图相关  建立ensemble-ID 字典
     Gene_dict = {}
@@ -88,19 +90,11 @@ def mk_dgltxt(raw_dir,name):
     #每张图的结构是一样的，每张图的边的数目相同
     n_edge = len(Node2_ID_name)
 
-#     print('node1'+str(Node1_ID_name))
-#     print('node2'+str(Node2_ID_name))
-
     #处理图关系
 
     #node_edges[i]= [0,1,2] 代表和节点i邻接的节点ID为0，1，2
     #node_attribute[i]= [a,b,c] 代表节点i的特征。有几个特征代表用到了几种组学数据
     node_edges = []
-    each_node_edge = []
-
-    node_attribute= []
-#     print( Node2_ID_name[51])
-
     for i in range(0,n_node):
         node_edges.append([])
 
@@ -120,16 +114,10 @@ def mk_dgltxt(raw_dir,name):
 
         if len(node_edges[i])==0:
             node_edges[i] == []
-
-#     _write_msg(raw_dir,name,'hello')
-#     _write_msg(raw_dir,name,'world')
-    #这次的图没有节点分类
     node_label = 0
 #     print('here129'+str(n_graph))
     _write_msg(raw_dir,name,str(n_graph))
 
-#     node_edges[0] = [str(str(w)+' ') for w in node_edges[0]]
-#     _write_msg(raw_dir,name,node_edges[0])
 
     #先处理图的骨架信息
     for i in range(0,n_node):

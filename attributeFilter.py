@@ -16,8 +16,7 @@ from sklearn.feature_selection import SelectKBest, VarianceThreshold, SelectPerc
 from sklearn.feature_selection import f_regression
 
 #将DataFrame中的每一列分别做归一化处理的函数实现
-from sklearn.tree import DecisionTreeClassifier
-from sklearn import feature_selection
+
 from sklearn.feature_selection import RFE
 from sklearn.linear_model import LinearRegression
 from sklearn.feature_selection import chi2

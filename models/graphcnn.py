@@ -222,16 +222,11 @@ class GraphCNN(nn.Module):
         #perform pooling over all nodes in each graph in every layer
         for layer, h in enumerate(hidden_rep):
             print(graph_pool)
-            # print(graph_pool.dtype)
-
-            # print(h)
-
             h = h.to(torch.float32)
-            # print(h.dtype)
-
             pooled_h = torch.spmm(graph_pool, h)
-            print('graphcnn 233')
+            print('graphcnn 227')
             print(pooled_h.dtype)
+
             score_over_layer += F.dropout(self.linears_prediction[layer](pooled_h), self.final_dropout, training = self.training)
 
             print(score_over_layer.dtype)
