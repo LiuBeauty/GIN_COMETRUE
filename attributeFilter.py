@@ -42,6 +42,7 @@ def _write_msg(raw_dir,name,msg):
         text = file.writelines(msg+'\n')
         file.close()
         return True
+
 #特征筛选第二步 使用卡方分布筛选特征
 def Chi2Func(data_final,flag,spec_score):
     #保留百分比的最高得分的特征
@@ -104,6 +105,7 @@ def normalization(df):
     """
     print('传入卡方检验前的数据')
     print(df.head(10))
+
     #去除提取出的 “cancer.type"等两列
 
     #先查看有无缺失数据
@@ -176,44 +178,42 @@ def attriFilter(raw_path):
     # print(df.head(10))
 
     natt = df.shape[1]
-    print('处理前特征维度')
+
     #特征列
     X = df.iloc[:, 2:natt]
+    print('处理前特征维度', X.shape)
     # print(X.shape)
     #标签列
-
-    #过滤掉特征值在中位数以下的方差
-    thre = (np.median(X.var().values))
+    #过滤掉一些表达值的方差在(1/2)中位数以下的基因
+    # thre = (0.8*np.median(X.var().values))
+    thre = 0.04
     vt = VarianceThreshold(threshold=thre)
     X_vt = pd.DataFrame(vt.fit_transform(X), columns=X.columns[vt.get_support()], index = X.index)
-
-    print('处理后维度')
-    # print(X_vt.shape)
-    subtype = df['Subtype_mRNA']
+    print('处理后维度', X_vt.shape)
+    subtype = df['Subtype']
     sublist = []
 
     subtypedict = {'Normal': 1, 'LumA': 2, 'LumB': 3, 'Basal': 4, 'Her2': 0}
     for item in subtype:
+
         sublist.append(subtypedict[item])
+
     X_vt['subtype'] = sublist
     return X_vt
 
-
-
-
-
 if __name__ == '__main__':
     # work_dir原表达矩阵
-    work_dir = 'D:/postgraduate/ALL_code/BRCA_test/BRCA_GNNExpressionwithSubtype.csv'
+    work_dir = 'D:/postgraduate/ALL_code/BRCA/TCGA_methClin/sample_meth_promoter_withSubtype.csv'
     #通过方差 初步筛选特征
-    # df1 = attriFilter(work_dir)
+    df1 = attriFilter(work_dir)
+    print(df1.head(5))
     #通过卡方检验筛选特征
     # df2 = attriFilter2(df1)
     #特征归一化
-    # df3 = normalization(df2)
+    # df3 = normalization(df1)
 
     #提取特征基因
-    beiyong()
+    # beiyong()
 
 
 

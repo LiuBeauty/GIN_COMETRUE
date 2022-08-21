@@ -171,6 +171,7 @@ def main():
     y_axis_data1 = acc_train_plt
     y_axis_data2 = acc_test_plt
 
+
     plt.plot(x_axis_data, y_axis_data1,'r', label='Train Accuary')
     plt.plot(x_axis_data, y_axis_data2,'b', label='Test Accuary')
 
