@@ -49,19 +49,26 @@ def mk_dgltxt(raw_dir,name):
 
 
     #读入ppi网络(图的结构)
-    total_gene_expression_path = os.path.join(raw_dir,name,str(name+"_ppi_Network.tsv"))
+    total_gene_expression_path = os.path.join(raw_dir,name,str(name+"_ppi_Network.csv"))
 #     print(total_gene_expression_path)
-    ppi_network = pd.read_csv(total_gene_expression_path,delimiter='\t',header=0)
+    ppi_network = pd.read_csv(total_gene_expression_path,header=0)
     print(ppi_network.head())
 
-    #读取节点特征1：基因表达  读入矩阵每一行是一个病人。是节点特征
+    #读取节点特征1：基因表达  读入矩阵每一行是一个病人。每一列是节点特征
     total_gene_expression_path = os.path.join(raw_dir,name,str(name+"_gene_expression.csv"))
-    total_gene_expression_feature =  pd.read_csv(total_gene_expression_path, header=0)
+    total_gene_expression_feature = pd.read_csv(total_gene_expression_path, header=0)
     print(total_gene_expression_feature.head())
     #图的标签集
-    total_label = total_gene_expression_feature['label']
 
-    #读取节点特征n 加在下面
+    #读取节点特征2:BODY的甲基化水平 加在下面
+    total_label = total_gene_expression_feature['subtype']
+    total_bodyMeth_path = os.path.join(raw_dir,name,str(name+"_bodyMeth.csv"))
+    total_bodyMeth_feature = pd.read_csv(total_bodyMeth_path, header=0)
+    print(total_bodyMeth_feature.head())
+
+    total_ProMeth_path = os.path.join(raw_dir,name,str(name+"_proMeth.csv"))
+    total_ProMeth_feature =  pd.read_csv(total_ProMeth_path, header=0)
+    print(total_ProMeth_feature.head())
     #图数据集包含的图的数目,表达矩阵的行数是图的数目
     n_graph = total_gene_expression_feature.shape[0]
     #每张图含有的节点数相同,去掉标签列
@@ -77,6 +84,8 @@ def mk_dgltxt(raw_dir,name):
     print(Gene_dict)
     #替换表达矩阵的行名
     total_gene_expression_feature = total_gene_expression_feature.rename(columns=Gene_dict)
+    total_bodyMeth_feature = total_bodyMeth_feature.rename(columns=Gene_dict)
+    total_proMeth_feature = total_ProMeth_feature .rename(columns=Gene_dict)
     print(total_gene_expression_feature)
 
     #Node1 节点的ID转换1 ppi文件的基因ID转换
@@ -104,7 +113,6 @@ def mk_dgltxt(raw_dir,name):
 
     #确定图骨架 每一张图写入txt时只需要加入特异的特征信息 未来可以考虑加入边的权重信息
     for i in range(0,n_node):
-        #每条边被记录两遍 假设源节点是node1 目标节点是node2
         #在node1列表中找有无邻接边
         for j in range (0,n_edge):
             #如果在源节点集合中有节点i  代表存在一条边的源节点是i，此时节点i的一个邻接点是Node2_ID_name[j]
@@ -120,6 +128,7 @@ def mk_dgltxt(raw_dir,name):
             node_edges[i] == []
     node_label = 0
 #     print('here129'+str(n_graph))
+    #txt文件第一行，图的数量
     _write_msg(raw_dir,name,str(n_graph))
 
 
@@ -135,22 +144,23 @@ def mk_dgltxt(raw_dir,name):
         node_indicator = i + 1
         #再写每一个节点的信息
         for j in range(0,n_node):
-            #msg写DS.txt
-            msg = str(node_label)+' '+ str(len(node_edges[j]))+' '+ " ".join(node_edges[j])+' ' +str(total_gene_expression_feature.iloc[i,j])
-            #msg2写DS_node_attributes.txt
-            msg2 = str(total_gene_expression_feature.iloc[i,j])
-            #msg3写DS_graph_indicator.txt
+            #msg写主文件
+            msg = str(node_label)+' '+ str(len(node_edges[j]))+' '+ " ".join(node_edges[j])+' ' +str(total_gene_expression_feature.iloc[i,j])+' '+str(total_proMeth_feature.iloc[i,j])+' '+str(total_bodyMeth_feature.iloc[i,j])
+            # msg2写DS_node_attributes.txt
+            msg2 = str(total_gene_expression_feature.iloc[i,j])+' '+str(total_proMeth_feature.iloc[i,j])+' '+str(total_bodyMeth_feature.iloc[i,j])
+            # _write_msg(raw_dir,name,msg)
+            # msg3写DS_graph_indicator.txt
             msg3 = str(node_indicator)
-            _write_msg(raw_dir,name,msg)
-            _write_msg2(raw_dir, name,name3, msg2)
+            # _write_msg(raw_dir, name, msg)
+            _write_msg2(raw_dir, name, name3, msg2)
             _write_msg2(raw_dir, name, name4, msg3)
 
             for adj_node in node_edges[j]:
                 if int(adj_node) > j:
-                    mark_adj_node = int(adj_node) +1
-                    msg4 = str(j+1)+', '+str(mark_adj_node)
-                    _write_msg2(raw_dir, name,name5, msg4)
-                    msg4 = str(mark_adj_node)+', '+str(j+1)
+                    mark_adj_node = int(adj_node) + 1
+                    msg4 = str(j + 1) + ', ' + str(mark_adj_node)
+                    _write_msg2(raw_dir, name, name5, msg4)
+                    msg4 = str(mark_adj_node) + ', ' + str(j + 1)
                     _write_msg2(raw_dir, name, name5, msg4)
 
 
@@ -158,7 +168,7 @@ def mk_dgltxt(raw_dir,name):
 
 if __name__ == '__main__':
     work_dir = './dataset'
-    mk_dgltxt(work_dir,'TESTLIU4')
+    mk_dgltxt(work_dir,'STAD')
 
 
 

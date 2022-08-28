@@ -192,30 +192,30 @@ def attriFilter(raw_path):
 
     print('处理后维度', X_vt.shape)
     #以下代码不着急附上，因为最后拼接也行
-    # subtype = df['Subtype']
-    # sublist = []
-    #
-    # subtypedict = {'Normal': 1, 'LumA': 2, 'LumB': 3, 'Basal': 4, 'Her2': 0}
-    # for item in subtype:
-    #
-    #     sublist.append(subtypedict[item])
-    #
-    # X_vt['subtype'] = sublist
+    subtype = df['subtype']
+    sublist = []
+
+    subtypedict = {'CIN': 1, 'EBV': 2, 'GS': 3, 'HM-SNV': 4, 'MSI': 0}
+    for item in subtype:
+
+        sublist.append(subtypedict[item])
+
+    X_vt['subtype'] = sublist
     return X_vt
 
 if __name__ == '__main__':
     # work_dir原表达矩阵
-    work_dir_promoter = 'D:/postgraduate/ALL_code/BRCA/TCGA_methClin/sample_meth_promoter_withSubtype.csv'
-    work_dir_body = 'D:/postgraduate/ALL_code/BRCA/TCGA_methClin/sample_meth_body_withSubtype.csv'
-    work_dir_GeneExp = 'D:/postgraduate/ALL_code/BRCA/TCGA_GeneExp/sample_GeneExp_withSubtypee.csv'
+    # work_dir_promoter = 'D:/postgraduate/ALL_code/STAD/TCGA_methClin/sample_meth_promoter_withSubtype.csv'
+    # work_dir_body = 'D:/postgraduate/ALL_code/STAD/TCGA_methClin/sample_meth_body_withSubtype.csv'
+    work_dir_GeneExp = 'D:/postgraduate/ALL_code/STAD/TCGA_GeneExp/Gene_Exp_withSubtype.csv'
 
     #通过方差 初步筛选特征
     # df1 = attriFilter(work_dir_promoter)
     # df2 = attriFilter(work_dir_body)
     df3 = attriFilter(work_dir_GeneExp)
-    # df1.to_csv('D:/postgraduate/ALL_code/BRCA/TCGA_methClin/AfterVar_meth_promoter_withSubtype1.csv')
-    # df2.to_csv('D:/postgraduate/ALL_code/BRCA/TCGA_methClin/AfterVar_meth_body_withSubtype1.csv')
-    df3.to_csv('D:/postgraduate/ALL_code/BRCA/TCGA_GeneExp/AfterVar_Gene_Exp_withSubtype.csv')
+    # df1.to_csv('D:/postgraduate/ALL_code/STAD/TCGA_methClin/AfterVar_meth_promoter_withSubtype.csv')
+    # df2.to_csv('D:/postgraduate/ALL_code/STAD/TCGA_methClin/AfterVar_meth_body_withSubtype.csv')
+    df3.to_csv('D:/postgraduate/ALL_code/STAD/TCGA_GeneExp/AfterVar_Gene_Exp_withSubtype.csv')
     #通过卡方检验筛选特征
     # df2 = attriFilter2(df1)
     #特征归
