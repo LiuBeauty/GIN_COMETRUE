@@ -1,19 +1,13 @@
-from sklearn import preprocessing
 from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier
 from sklearn.model_selection import train_test_split, cross_val_score
-from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
-import math
-import csv
 import os
 import numpy as np
-import seaborn as sns
-from sklearn.preprocessing import MinMaxScaler  # sklearn归一化API
-import matplotlib.pyplot as plt
-from sklearn.feature_extraction import DictVectorizer
-import pylab as pl
 from sklearn.feature_selection import SelectKBest, VarianceThreshold, SelectPercentile
-from sklearn.feature_selection import f_regression
+import numpy as np
+from sklearn.preprocessing import MinMaxScaler
+
+
 
 #将DataFrame中的每一列分别做归一化处理的函数实现
 
@@ -94,9 +88,6 @@ def regularit(df):
         newDataFrame[c] = ((d - MIN) / (MAX - MIN)).tolist()
     return newDataFrame
 
-
-
-
 # 对矩阵进行归一化
 def normalization(df):
     """
@@ -105,25 +96,11 @@ def normalization(df):
     """
     print('传入卡方检验前的数据')
     print(df.head(10))
-
-    #去除提取出的 “cancer.type"等两列
-
-    #先查看有无缺失数据
-    # print(df.isnull().sum())
-
-    subtype = df['subtype']
-
     attridf = df.iloc[:, 0:df.shape[1]-1]
-    print('归一化前的特征矩阵')
-    print(attridf.head(10))
     #特征归一化后的矩阵
     df2 = regularit(attridf)
-    print('归一化后的特征矩阵')
-
     df2['subtype']= np.array(df['subtype'])
     print(df2.head())
-    df2.to_csv("D:/postgraduate/ALL_code/GNN_BRCA_GNNExpression.csv")
-
     return df2
 
 #根据信息增益选取特征（待解决问题：根据数据集划分，特征的重要性变化很剧烈
@@ -172,53 +149,40 @@ def attriFilter3(raw_path):
 
 #特征筛选第一步 筛选过滤小方差特征
 def attriFilter(raw_path):
-    # 删除方差为0的特征
     df = pd.read_csv(raw_path, sep=',', header=0, index_col=0)
-    # print(df.info())
-    # print(df.head(10))
-
     natt = df.shape[1]
-
     #特征列
-    X = df.iloc[:, 2:natt]
+    X = df.iloc[:, 1:natt]
     print('处理前特征维度', X.shape)
-    # print(X.shape)
-    #标签列
-    #过滤掉一些表达值的方差在(1/2)中位数以下的基因
-    # thre = (0.8*np.median(X.var().values))
-    thre = 10
-    vt = VarianceThreshold(threshold=thre)
-    X_vt = pd.DataFrame(vt.fit_transform(X), columns=X.columns[vt.get_support()], index = X.index)
-
-    print('处理后维度', X_vt.shape)
-    #以下代码不着急附上，因为最后拼接也行
+    X_Var = X.var().sort_values(ascending=False)
+    X_vt = X_Var[0:420]
+    col_index = list(X_vt.index)
+    x_fin = X[col_index]
     subtype = df['subtype']
     sublist = []
 
-    subtypedict = {'CIN': 1, 'EBV': 2, 'GS': 3, 'HM-SNV': 4, 'MSI': 0}
+    subtypedict = {'LumA': 1,'LumB': 0,'Normal':2,'Basal':3,'Her2':4}
     for item in subtype:
-
         sublist.append(subtypedict[item])
+    print('处理后特征维度：',x_fin.shape)
+    x_fin['subtype'] = sublist
 
-    X_vt['subtype'] = sublist
-    return X_vt
+    return x_fin
 
 if __name__ == '__main__':
     # work_dir原表达矩阵
-    # work_dir_promoter = 'D:/postgraduate/ALL_code/STAD/TCGA_methClin/sample_meth_promoter_withSubtype.csv'
-    # work_dir_body = 'D:/postgraduate/ALL_code/STAD/TCGA_methClin/sample_meth_body_withSubtype.csv'
-    work_dir_GeneExp = 'D:/postgraduate/ALL_code/STAD/TCGA_GeneExp/Gene_Exp_withSubtype.csv'
+    work_dir_promoter = 'D:/postgraduate/ALL_code/BRCA_NODE420/TCGA_methClin/sample_proMeth1.csv'
+    work_dir_body = 'D:/postgraduate/ALL_code/BRCA_NODE420/TCGA_methClin/sample_bodyMeth1.csv'
+    work_dir_GeneExp = 'D:/postgraduate/ALL_code/BRCA_NODE420/TCGA_GeneExp/sample_gene_expression.csv'
 
-    #通过方差 初步筛选特征
-    # df1 = attriFilter(work_dir_promoter)
-    # df2 = attriFilter(work_dir_body)
+    # 通过方差 初步筛选特征
+    df1 = attriFilter(work_dir_promoter)
+    df2 = attriFilter(work_dir_body)
     df3 = attriFilter(work_dir_GeneExp)
-    # df1.to_csv('D:/postgraduate/ALL_code/STAD/TCGA_methClin/AfterVar_meth_promoter_withSubtype.csv')
-    # df2.to_csv('D:/postgraduate/ALL_code/STAD/TCGA_methClin/AfterVar_meth_body_withSubtype.csv')
-    df3.to_csv('D:/postgraduate/ALL_code/STAD/TCGA_GeneExp/AfterVar_Gene_Exp_withSubtype.csv')
-    #通过卡方检验筛选特征
-    # df2 = attriFilter2(df1)
-    #特征归
+    df1.to_csv('D:/postgraduate/ALL_code/BRCA_NODE420/TCGA_methClin/AfterVar_meth_promoter_withSubtype.csv')
+    df2.to_csv('D:/postgraduate/ALL_code/BRCA_NODE420/TCGA_methClin/AfterVar_meth_body_withSubtype.csv')
+    df3.to_csv('D:/postgraduate/ALL_code/BRCA_NODE420/TCGA_GeneExp/AfterVar_Gene_Exp_withSubtype.csv')
+
     # df3 = normalization(df1)
 
     #提取特征基因
