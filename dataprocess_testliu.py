@@ -61,17 +61,25 @@ def mk_dgltxt(raw_dir,name):
     #读取节点特征1：基因表达  读入矩阵每一行是一个病人。每一列是节点特征
     total_gene_expression_path = os.path.join(raw_dir,name,str(name+"_gene_expression.csv"))
     total_gene_expression_feature = pd.read_csv(total_gene_expression_path, header=0)
+    total_gene_expression_feature = total_gene_expression_feature.drop('sampleBarcode',axis = 1)
     total_label = total_gene_expression_feature['subtype']
+    subtypedict = {'G2': 0, 'G3': 1}
+    sublist = []
+    for item in total_label:
+        sublist.append(subtypedict[item])
+    total_label = sublist
     print(total_gene_expression_feature.head())
     #图的标签集
 
     #读取节点特征2:BODY的甲基化水平 加在下面
     total_bodyMeth_path = os.path.join(raw_dir,name,str(name+"_bodyMeth.csv"))
     total_bodyMeth_feature = pd.read_csv(total_bodyMeth_path, header=0)
+    total_bodyMeth_feature = total_bodyMeth_feature.drop('sampleBarcode',axis = 1)
     print(total_bodyMeth_feature.head())
 
     total_ProMeth_path = os.path.join(raw_dir,name,str(name+"_proMeth.csv"))
     total_ProMeth_feature =  pd.read_csv(total_ProMeth_path, header=0)
+    total_ProMeth_feature = total_ProMeth_feature.drop('sampleBarcode',axis = 1)
     print(total_ProMeth_feature.head())
 
     # total_cnv_path = os.path.join(raw_dir, name, str(name + "_cnv.csv"))
@@ -96,7 +104,7 @@ def mk_dgltxt(raw_dir,name):
 
 
     #Node1 节点的ID转换1 ppi文件的基因ID转换
-    Node1_gene_name =  ppi_network['#node1']
+    Node1_gene_name =  ppi_network['node1']
     Node1_ID_name = []
     for key in Node1_gene_name:
        Node1_ID_name.append(Gene_dict[key])
@@ -172,7 +180,7 @@ def mk_dgltxt(raw_dir,name):
 
 if __name__ == '__main__':
     work_dir = './dataset'
-    mk_dgltxt(work_dir,'BRCA_NODE420')
+    mk_dgltxt(work_dir,'LGG')
 
 
 

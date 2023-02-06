@@ -1,7 +1,8 @@
-import numpy as np
-from sklearn.metrics import accuracy_score
-from sklearn import metrics
-y_pred = [0, 0, 0, 0, 2, 0, 2, 0, 0, 0, 2]
-y_true = [0, 0, 4, 0, 2, 0, 2, 0, 0, 0, 1]
-acc = metrics.accuracy_score(y_true, y_pred)
-print(acc)
+
+node_feature = {}
+for each_node in range(0,80) :
+    if not each_node in node_feature:
+        mapped = len(node_feature)+100
+        node_feature[mapped] = each_node
+print(node_feature)
+print(node_feature[109])

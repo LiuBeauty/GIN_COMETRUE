@@ -151,19 +151,22 @@ def attriFilter3(raw_path):
 def attriFilter(raw_path):
     df = pd.read_csv(raw_path, sep=',', header=0, index_col=0)
     natt = df.shape[1]
-    #特征列
-    X = df.iloc[:, 1:natt]
+    X = df.iloc[:, 0:natt]
     print('处理前特征维度', X.shape)
     X_Var = X.var().sort_values(ascending=False)
-    X_vt = X_Var[0:420]
+    X_vt = X_Var[0:2000]
     col_index = list(X_vt.index)
+
     x_fin = X[col_index]
     subtype = df['subtype']
     sublist = []
 
-    subtypedict = {'LumA': 1,'LumB': 0,'Normal':2,'Basal':3,'Her2':4}
+    subtypedict = {'G2': 0,'G3': 1}
+    i=1
     for item in subtype:
         sublist.append(subtypedict[item])
+        print(f'----{i}')
+        i+=1
     print('处理后特征维度：',x_fin.shape)
     x_fin['subtype'] = sublist
 
@@ -171,17 +174,29 @@ def attriFilter(raw_path):
 
 if __name__ == '__main__':
     # work_dir原表达矩阵
-    work_dir_promoter = 'D:/postgraduate/ALL_code/BRCA_NODE420/TCGA_methClin/sample_proMeth1.csv'
-    work_dir_body = 'D:/postgraduate/ALL_code/BRCA_NODE420/TCGA_methClin/sample_bodyMeth1.csv'
-    work_dir_GeneExp = 'D:/postgraduate/ALL_code/BRCA_NODE420/TCGA_GeneExp/sample_gene_expression.csv'
+    work_dir_promoter = 'D:/postgraduate/ALL_code2/LGG/TCGA_methClin/all_LGGpro_withSubtype.csv'
+    work_dir_body = 'D:/postgraduate/ALL_code2/LGG/TCGA_methClin/all_LGGBody_withSubtype.csv'
+    work_dir_GeneExp = 'D:/postgraduate/ALL_code2/LGG/TCGA_GeneExp/all_LGGExp_withSubtype.csv'
 
     # 通过方差 初步筛选特征
     df1 = attriFilter(work_dir_promoter)
     df2 = attriFilter(work_dir_body)
     df3 = attriFilter(work_dir_GeneExp)
-    df1.to_csv('D:/postgraduate/ALL_code/BRCA_NODE420/TCGA_methClin/AfterVar_meth_promoter_withSubtype.csv')
-    df2.to_csv('D:/postgraduate/ALL_code/BRCA_NODE420/TCGA_methClin/AfterVar_meth_body_withSubtype.csv')
-    df3.to_csv('D:/postgraduate/ALL_code/BRCA_NODE420/TCGA_GeneExp/AfterVar_Gene_Exp_withSubtype.csv')
+
+    # df1 = pd.read_csv('D:/postgraduate/ALL_code2/LGG/TCGA_methClin/aftvar300_all_LGGpro.csv',sep=',', header=0, index_col=False)
+    # df2 = pd.read_csv('D:/postgraduate/ALL_code2/LGG/TCGA_methClin/aftvar300_all_LGGBody.csv',sep=',', header=0, index_col=False)
+    # df3 = pd.read_csv('D:/postgraduate/ALL_code2/LGG/TCGA_GeneExp/aftvar300_all_LGGExp.csv',sep=',', header=0, index_col=False)
+
+    meth_gene = list(set(df1.columns.values.tolist()).union(set(df2.columns.values.tolist())))
+
+    com_gene = list(set(meth_gene).union(set(df3.columns.values.tolist())))
+
+
+    df_all = pd.read_csv('D:/postgraduate/ALL_code2/LGG/TCGA_methClin/all_LGGpro_withSubtype.csv', sep=',', header=0, index_col=False)
+
+    ppi_gene = list(set(com_gene).intersection(set(df_all.columns.values.tolist())))
+    ppi_gene = pd.DataFrame(ppi_gene)
+    ppi_gene.to_csv('D:/postgraduate/ALL_code2/LGG/com_gene1.csv',index = False)
 
     # df3 = normalization(df1)
 
