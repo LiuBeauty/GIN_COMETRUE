@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+# coding: unicode_escape
 import pandas as pd
 import math
 import csv
@@ -54,7 +56,7 @@ def mk_dgltxt(raw_dir,name):
     id_label = {}
     label_class ={}
     i=0
-    total_label_path = "D:\\postgraduate\\DNA甲基化挖掘项目\\论文复现\\GIN_COMETRUE\\reads_dataset\\train\\test_label.xls"
+    total_label_path = "D:\\postgraduate\\DNA甲基化挖掘项目\\论文复现\\GIN_COMETRUE\\reads_dataset\\train\\train_label.xls"
 
     with open(total_label_path, 'r', encoding='utf-8') as f:
         content = f.readline()
@@ -70,7 +72,9 @@ def mk_dgltxt(raw_dir,name):
                 mapped = len(label_class)
                 label_class[label] = mapped
             id_label[id] = label_class[label]
-
+    print(label_class)
+    print('here')
+    print(id_label)
     n_graph = len(id_label)
     # graphs[i] = [[0,1,2],[2,3,4]]
     #前面是源节点集合，后面是目标节点集合
@@ -84,12 +88,14 @@ def mk_dgltxt(raw_dir,name):
         graphs.append(each_graph)
 
     #读入ppi网络(图的结构)
-    total_Network_path = "D:\\postgraduate\\DNA甲基化挖掘项目\\论文复现\\GIN_COMETRUE\\reads_dataset\\train\\test_Network.xls"
+    total_Network_path = "D:\\postgraduate\\DNA甲基化挖掘项目\\论文复现\\GIN_COMETRUE\\reads_dataset\\train\\train_Network.xls"
     i = 0
     with open(total_Network_path,'r',encoding='utf-8') as f:
         while True:
             content = f.readline()
             if len(content) == 0:
+                graphs[len(graph_labels) - 1].append(s_node_set)
+                graphs[len(graph_labels) - 1].append(t_node_set)
                 break
         # 当读取到文件末尾的时候，跳出循环
             id,s_node,t_node,weight = content.split('\t')
@@ -117,13 +123,13 @@ def mk_dgltxt(raw_dir,name):
 
     _write_msg(raw_dir,name,str(n_graph))
 
-
     #node_edges[i]= [0,1,2] 代表和节点i邻接的节点ID为0，1，2
     for l in range(n_graph):
         node_edges = []
         edges = graphs[l]
         s_node_set = edges[0]
         t_node_set = edges[1]
+
         node_label = 0
         n_node = len(list(set(s_node_set)|set(t_node_set)))
         n_edge = len(s_node_set)
@@ -139,7 +145,7 @@ def mk_dgltxt(raw_dir,name):
         for i in range(len(s_node_set)):
             s_node_set[i] = list(node_feature.keys())[list(node_feature.values()).index(s_node_set[i])]
         for j in range(len(t_node_set)):
-            t_node_set[j] = list(node_feature.keys())[list(node_feature.values()).index(s_node_set[j])]
+            t_node_set[j] = list(node_feature.keys())[list(node_feature.values()).index(t_node_set[j])]
 
         for i in range(0,n_node):
             node_edges.append([])
@@ -148,14 +154,16 @@ def mk_dgltxt(raw_dir,name):
             #在node1列表中找有无邻接边
             for j in range (0,n_edge):
                 #如果在源节点集合中有节点i  代表存在一条边的源节点是i，此时节点i的一个邻接点是Node2_ID_name[j]
-                if s_node_set[j] == i:
+                if s_node_set[j] == i and t_node_set[j] not in node_edges[i]:
                     node_edges[i].append(t_node_set[j])
             #在node2列表中找有无邻接边
             for k in range(0,n_edge):
-                if t_node_set[k] == i:
+                if t_node_set[k] == i and s_node_set[k] not in node_edges[i]:
                     node_edges[i].append(s_node_set[k])
-            print(msg)
+
+            node_edges[i] = [str(w) for w in node_edges[i]]
             msg = str(node_label) + " " + str(len(node_edges[i]))+" "+" ".join(node_edges[i])+" "+str(node_feature[i])
+            print(msg)
             _write_msg(raw_dir, name, msg)
 
 if __name__ == '__main__':

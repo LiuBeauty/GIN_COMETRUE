@@ -14,10 +14,9 @@ import os
 
 # np.set_printoptions(threshold=np.inf)
 #
-cancer_type = 'Our_LGG_node2000'
-num_class = 2
-raw_dir='D:/postgraduate/ALL_code2'
+num_class = 5
 name = 'LGG'
+cancer_type = 'BRCA'
 
 data_train = list()
 data_test = list()
@@ -25,14 +24,14 @@ label_train = list()
 label_test = list()
 
 # total_expression_path = os.path.join(raw_dir, name, str(name + "_gene_expression.csv"))
-total_expression_path = "D:/postgraduate/ALL_code2/LGG/TCGA_GeneExp/aftvar2000_all_LGGExp.csv"
+total_expression_path = "D:/postgraduate/DNA甲基化挖掘项目/论文复现/GIN_COMETRUE/dataset/BRCA_NODE300_2/BRCA_NODE300_2_gene_expression.csv"
 total_expression_feature = pd.read_csv(total_expression_path, header=0)
 
-total_bodyMeth_path = "D:/postgraduate/ALL_code2/LGG/TCGA_methClin/aftvar2000_all_LGGBody.csv"
-# total_bodyMeth_path = os.path.join(raw_dir, name, str(name + "_bodyMeth.csv"))
+total_bodyMeth_path = "D:/postgraduate/DNA甲基化挖掘项目/论文复现/GIN_COMETRUE/dataset/BRCA_NODE300_2/BRCA_NODE300_2_bodyMeth.csv"
+
 total_bodyMeth_feature = pd.read_csv(total_bodyMeth_path, header=0)
 
-total_proMeth_path = "D:/postgraduate/ALL_code2/LGG/TCGA_methClin/aftvar2000_all_LGGpro.csv"
+total_proMeth_path = "D:/postgraduate/DNA甲基化挖掘项目/论文复现/GIN_COMETRUE/dataset/BRCA_NODE300_2/BRCA_NODE300_2_proMeth.csv"
 # total_proMeth_path = os.path.join(raw_dir, name, str(name + "_proMeth.csv"))
 total_proMeth_feature = pd.read_csv(total_proMeth_path, header=0)
 
@@ -47,8 +46,10 @@ proMeth_feature = (total_proMeth_feature.iloc[:,0:ncol]).to_numpy()
 label3 = (total_bodyMeth_feature.iloc[:,-1]).to_numpy()
 bodyMeth_feature = (total_bodyMeth_feature.iloc[:,0:ncol]).to_numpy()
 
+print(proMeth_feature)
+
 indice = np.arange(0,total_expression_feature.shape[0]-1 )
-data_train_index, data_test_index, label_train_index, label_test_index = train_test_split(indice, indice, random_state=3, test_size=0.21)
+data_train_index, data_test_index, label_train_index, label_test_index = train_test_split(indice, indice, random_state=3, test_size=0.2)
 data_train.append(expression_feature[data_train_index])
 label_train = label[data_train_index]
 data_test.append(expression_feature[data_test_index])
@@ -121,9 +122,7 @@ def get_oof(clf, n_folds, X_train, y_train, X_test):
     #ntrain 返回行数，即训练集中的样本数
     ntrain = X_train.shape[0]
     ntest = X_test.shape[0]
-
     classnum = len(np.unique(y_train))
-
     kf = KFold(n_splits=n_folds, shuffle=False)
     oof_train = np.zeros((ntrain, classnum))
     oof_test = np.zeros((ntest, classnum))
@@ -131,10 +130,8 @@ def get_oof(clf, n_folds, X_train, y_train, X_test):
     pd.set_option('display.max_rows', None)  # 显示全部行
     pd.set_option('display.max_columns', None)  # 显示全部列
     for i, (train_index, test_index) in enumerate(kf.split(X_train)):
-
         kf_X_train = X_train[train_index]  # 数据
         kf_y_train = y_train[train_index]  # 标签
-
         kf_X_test = X_train[test_index]  # k-fold的验证集
 
         clf.fit(kf_X_train, kf_y_train)
@@ -150,7 +147,7 @@ def get_oof(clf, n_folds, X_train, y_train, X_test):
 # 第一级，重构特征当做第二级的训练集
 modelist = ['SVM', 'GBDT', 'RF', 'KNN']
 
-modelname = 'GBDT'
+modelname = 'SVM'
 newfeature_list = []
 newtestdata_list = []
 newfeature = []
@@ -170,7 +167,7 @@ newtestdata = reduce(lambda x, y: np.concatenate((x, y), axis=1), newtestdata_li
 # 特征组合
 # 第二级，使用上一级输出的当做训练集
 # clf_second1 = RandomForestClassifier()
-print('---------Third layer caculating--------')
+print('---------Second layer caculating--------')
 clf_second1 = SelectModel(modelname)
 clf_second1.fit(newfeature, label_train)
 pred = clf_second1.predict(newtestdata)

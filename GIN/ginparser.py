@@ -22,7 +22,7 @@ class Parser():
             help='name of dataset (default: MUTAG)')
         self.parser.add_argument(
             '--batch_size', type=int, default=32,
-            help='batch size for training and validation (default: 32)')
+            help='batch size for training and validation (default: 32)')j
         self.parser.add_argument(
             '--fold_idx', type=int, default=0,
             help='the index(<10) of fold in 10-fold validation.')
